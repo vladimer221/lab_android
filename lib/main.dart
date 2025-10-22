@@ -12,11 +12,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ЛР2 — Список карточек',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+      title: 'ЛР3 — Шабров И.А. ЦПИБу-31',
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const CardListScreen(),
     );
   }
@@ -25,17 +22,23 @@ class MyApp extends StatelessWidget {
 class CardListScreen extends StatelessWidget {
   const CardListScreen({super.key});
 
+  void _handleLikePressed() {
+    debugPrint(" Нажата кнопка лайка!");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Шабров И.А. ЦПИБу-31'),
-        backgroundColor: Colors.blue,
+        title: const Text('ЛР3 — Шабров И.А. ЦПИБу-31'),
       ),
       body: ListView.builder(
         itemCount: cards.length,
         itemBuilder: (context, index) {
-          return CardItemWidget(data: cards[index]);
+          return CardItemWidget(
+            data: cards[index],
+            onLikeToggle: _handleLikePressed,
+          );
         },
       ),
     );
