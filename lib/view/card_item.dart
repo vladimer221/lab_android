@@ -2,129 +2,79 @@ import 'package:flutter/material.dart';
 import '../model/card_data.dart';
 import 'detail_screen.dart';
 
-class CardItemWidget extends StatefulWidget {
-  final CardData data;
-  final VoidCallback onLikeToggle;
+class CardItem extends StatelessWidget {
+  final CardData card;
+  final VoidCallback onLikePressed;
+  final bool isLiked;
 
-  const CardItemWidget({
+  const CardItem({
     super.key,
-    required this.data,
-    required this.onLikeToggle,
+    required this.card,
+    required this.onLikePressed,
+    required this.isLiked,
   });
 
-  @override
-  State<CardItemWidget> createState() => _CardItemWidgetState();
-}
-
-class _CardItemWidgetState extends State<CardItemWidget>
-    with SingleTickerProviderStateMixin {
-  bool isLiked = false;
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toggleLike() {
-    setState(() {
-      isLiked = !isLiked;
-    });
-
-    _controller.forward(from: 0.0);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          isLiked
-              ? 'Вы поставили ❤️ карточке "${widget.data.title}"'
-              : 'Вы убрали лайк с карточки "${widget.data.title}"',
-        ),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    widget.onLikeToggle();
-  }
-
-  void _openDetailScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DetailScreen(data: widget.data),
-      ),
-    );
-  }
+  String _display(String? v) => (v != null && v.isNotEmpty) ? v : '—';
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _openDetailScreen,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => DetailScreen(card: card)),
+        );
+      },
       child: Card(
-        margin: const EdgeInsets.all(8),
-        elevation: 5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(16)),
-              child: Image.asset(
-                widget.data.imageUrl,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Text(
-                widget.data.title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 3,
+        child: Padding(
+          padding: const EdgeInsets.all(14.0),
+          child: Row(
+            children: [
+              // Изображение персонажа (если есть)
+              if (card.image != null)
+                CircleAvatar(
+                  radius: 26,
+                  backgroundImage: NetworkImage(card.image!),
+                )
+              else
+                const CircleAvatar(
+                  radius: 26,
+                  backgroundColor: Color(0xFFEDE7F6),
+                  child: Icon(Icons.person, color: Colors.deepPurple),
+                ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      card.name,
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 6),
+                    Text('Дом: ${_display(card.house)}'),
+                    Text('Пол: ${_display(card.gender)}'),
+                  ],
                 ),
               ),
-            ),
-            Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-              child: Text(widget.data.subtitle),
-            ),
-            const SizedBox(height: 10),
-            Center(
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: IconButton(
-                  iconSize: 32,
-                  icon: Icon(
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: onLikePressed,
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                  child: Icon(
                     isLiked ? Icons.favorite : Icons.favorite_border,
+                    key: ValueKey<bool>(isLiked),
                     color: isLiked ? Colors.red : Colors.grey,
                   ),
-                  onPressed: _toggleLike,
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-          ],
+            ],
+          ),
         ),
       ),
     );

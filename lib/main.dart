@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'view/list_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const LabApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LabApp extends StatelessWidget {
+  const LabApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Lab 4 - PotterDB',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+        primarySwatch: Colors.deepPurple,
       ),
-      home: const CardListScreen(),
+      home: const ListScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
