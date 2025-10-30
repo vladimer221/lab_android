@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'search_screen.dart'; // Импорт экрана поиска
 import '../data/card_repository.dart';
 import '../model/card_data.dart';
 import 'card_item.dart';
@@ -11,29 +12,36 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-  final CardRepository repository = CardRepository();
-  late Future<List<CardData>> futureCards;
+  late CardRepository _cardRepository;
   List<CardData> cards = [];
   bool isLoading = false;
-  int currentPage = 1;
+  int currentPage = 1;  // Стартовая страница
+  bool hasMore = true;  // Флаг для проверки, есть ли еще данные для загрузки
 
   @override
   void initState() {
     super.initState();
-    futureCards = repository.fetchCards(page: currentPage);
-    loadCards();
+    _cardRepository = CardRepository();
+    _loadCards();  // Загрузка данных при старте
   }
 
-  void loadCards() async {
+  Future<void> _loadCards() async {
+    if (isLoading || !hasMore) return;  // Если уже идет загрузка или больше нет данных
+
     setState(() {
       isLoading = true;
     });
+
     try {
-      final newCards = await repository.fetchCards(page: currentPage);
+      final newCards = await _cardRepository.fetchCards(page: currentPage);
       setState(() {
-        cards.addAll(newCards);
         isLoading = false;
-        currentPage++;
+        if (newCards.isNotEmpty) {
+          cards.addAll(newCards);  // Добавляем новые карточки к уже загруженным
+          currentPage++;  // Увеличиваем номер страницы
+        } else {
+          hasMore = false;  // Если нет новых данных, устанавливаем флаг
+        }
       });
     } catch (e) {
       setState(() {
@@ -43,43 +51,47 @@ class _ListScreenState extends State<ListScreen> {
     }
   }
 
-  void _toggleLike(CardData card) {
-    setState(() {
-      card.isLiked = !card.isLiked;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(card.isLiked
-            ? 'Вы поставили лайк ${card.name}'
-            : 'Вы убрали лайк у ${card.name}'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Персонажи (PotterDB)'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),  // Иконка лупы для поиска
+            onPressed: () {
+              // Открытие экрана поиска при нажатии на лупу
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchScreen()),  // Переход на экран поиска
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
-        itemCount: cards.length + 1, // +1 для индикатора загрузки
+        itemCount: cards.length + 1,  // +1 для индикатора загрузки
         itemBuilder: (context, index) {
           if (index == cards.length) {
+            // Индикатор загрузки
             if (isLoading) {
               return const Center(child: CircularProgressIndicator());
             } else {
-              loadCards(); // загружаем следующую страницу
+              // Загружаем следующую страницу, если не идет загрузка
+              _loadCards();
               return const Center(child: Text('Загрузка...'));
             }
           }
+
           final card = cards[index];
           return CardItem(
             card: card,
             isLiked: card.isLiked,
-            onLikePressed: () => _toggleLike(card),
+            onLikePressed: () {
+              setState(() {
+                card.isLiked = !card.isLiked;
+              });
+            },
           );
         },
       ),
