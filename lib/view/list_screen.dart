@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'search_screen.dart'; // Импорт экрана поиска
+import 'search_screen.dart';
 import '../data/card_repository.dart';
 import '../model/card_data.dart';
 import 'card_item.dart';
@@ -15,7 +15,7 @@ class _ListScreenState extends State<ListScreen> {
   late CardRepository _cardRepository;
   List<CardData> cards = [];
   bool isLoading = false;
-  int currentPage = 1;  // Стартовая страница
+  int currentPage = 1;
   bool hasMore = true;  // Флаг для проверки, есть ли еще данные для загрузки
 
   @override
@@ -69,31 +69,35 @@ class _ListScreenState extends State<ListScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: cards.length + 1,  // +1 для индикатора загрузки
-        itemBuilder: (context, index) {
-          if (index == cards.length) {
-            // Индикатор загрузки
-            if (isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else {
-              // Загружаем следующую страницу, если не идет загрузка
-              _loadCards();
-              return const Center(child: Text('Загрузка...'));
-            }
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (scrollInfo) {
+          // Проверка, если мы прокрутили в конец списка
+          if (!isLoading && hasMore && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+            _loadCards();
+            return true; // Возвращаем true, чтобы предотвратить дальнейшую обработку прокрутки
           }
-
-          final card = cards[index];
-          return CardItem(
-            card: card,
-            isLiked: card.isLiked,
-            onLikePressed: () {
-              setState(() {
-                card.isLiked = !card.isLiked;
-              });
-            },
-          );
+          return false;
         },
+        child: ListView.builder(
+          itemCount: cards.length + (isLoading ? 1 : 0),  // Индикатор загрузки, если идет загрузка
+          itemBuilder: (context, index) {
+            if (index == cards.length) {
+              // Индикатор загрузки
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final card = cards[index];
+            return CardItem(
+              card: card,
+              isLiked: card.isLiked,
+              onLikePressed: () {
+                setState(() {
+                  card.isLiked = !card.isLiked;
+                });
+              },
+            );
+          },
+        ),
       ),
     );
   }
