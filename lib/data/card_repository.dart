@@ -5,6 +5,7 @@ import 'package:rxdart/rxdart.dart';
 import '../model/card_data.dart';
 import 'mock_card_repository.dart';
 
+
 class CardRepository {
   static const String baseUrl = 'https://api.potterdb.com/v1/characters';
 
@@ -28,6 +29,7 @@ class CardRepository {
     try {
       final uri = Uri.parse('$baseUrl?page[number]=$page&filter[name]=$searchQuery');  // Обновляем запрос с фильтрацией
       print('Request URL: $uri');  // Добавим вывод URL для отладки
+
       final resp = await http.get(uri).timeout(const Duration(seconds: 8));
 
       if (resp.statusCode == 200) {
@@ -35,6 +37,7 @@ class CardRepository {
         all.addAll(parsed);
       } else {
         print('CardRepository: HTTP ${resp.statusCode} на странице $page');
+        throw Exception('Ошибка при загрузке данных с API');
       }
 
       if (all.isEmpty) {
@@ -46,9 +49,11 @@ class CardRepository {
       return all;
     } catch (e) {
       print('CardRepository: ошибка $e — используется мок');
-      return MockCardRepository().fetchCards();
+      throw Exception('Ошибка при запросе данных');
     }
   }
+
+
 
   // Публичный метод для добавления запроса в поток поиска
   void searchCards(String query) {

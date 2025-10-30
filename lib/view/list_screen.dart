@@ -6,6 +6,7 @@ import 'search_screen.dart'; // Импорт экрана поиска
 import '../data/card_repository.dart';
 import '../model/card_data.dart';
 import 'card_item.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ListScreen extends StatefulWidget {
   const ListScreen({super.key});
@@ -27,8 +28,20 @@ class _ListScreenState extends State<ListScreen> {
     super.initState();
     _cardRepository = CardRepository();
     _loadCards();  // Загрузка данных при старте
-    _loadLikedStates();  // Загружаем сохраненные лайки
+    _loadLikedStates();
+    _checkNetworkConnection();
   }
+
+  Future<void> _checkNetworkConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      // Если нет подключения, показываем ошибку
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Нет подключения к сети')),
+      );
+    }
+  }
+
 
   // Загрузка состояния лайков из SharedPreferences
   Future<void> _loadLikedStates() async {
@@ -72,7 +85,9 @@ class _ListScreenState extends State<ListScreen> {
       setState(() {
         isLoading = false;
       });
-      print('Ошибка при загрузке данных: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: $e')),
+      );
     }
   }
 
