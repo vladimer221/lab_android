@@ -56,10 +56,9 @@ class DetailScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: const Text(
-                'Это экран с детальной информацией о выбранной карточке. '
-                    'Здесь можно разместить дополнительный текст, характеристики, '
-                    'или любую связанную информацию, например дату, категорию, автора и т.д.',
-                style: TextStyle(fontSize: 16),
+                'Это экран с информацией о выбранной карточке. '
+                    'Здесь можно разместить текст '
+                ,style: TextStyle(fontSize: 16),
               ),
             ),
 
