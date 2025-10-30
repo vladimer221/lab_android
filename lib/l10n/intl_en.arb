@@ -1,0 +1,9 @@
+{
+  "appTitle": "Characters (PotterDB)",
+  "hello": "Hello",
+  "welcome": "Welcome to the app",
+  "house": "House",
+  "gender": "Gender",
+  "hair_color": "Hair Color",
+  "height": "Height"
+}

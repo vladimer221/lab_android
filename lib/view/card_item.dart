@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lab1/generated/l10n.dart';
 import '../model/card_data.dart';
 import 'detail_screen.dart';
 
@@ -55,8 +56,11 @@ class CardItem extends StatelessWidget {
                       style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 6),
-                    Text('Дом: ${_display(card.house)}'),
-                    Text('Пол: ${_display(card.gender)}'),
+                    Text('${S.of(context).house}: ${_display(card.house)}'),
+                    Text('${S.of(context).gender}: ${_display(card.gender)}'),
+                    Text('${S.of(context).hair_color}: ${_display(card.hairColor)}'),
+                    Text('${S.of(context).height}: ${_display(card.height)}'),
+
                   ],
                 ),
               ),
